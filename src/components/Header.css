@@ -1,0 +1,49 @@
+.heading {
+    width: 1216px;
+    height: 48px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.item1 {
+    height: 24px;
+    margin-left: 5px;
+}
+
+.item1 p {
+    font-weight: 400;
+    font-size: 20px;
+    margin: 0;
+}
+
+.item2 {
+    display: flex;
+    align-items: center;
+    margin-right: 10px;
+}
+
+.item2 button {
+   
+    height: 36px;
+    cursor: pointer;
+    display: inline-block;
+}
+
+
+.csv {
+    width: 113px;
+    padding: 0;
+    margin-right: 30px;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    color: rgba(98, 0, 238, 1);
+}
+
+.add {
+    width: 172px;
+    padding: 0;
+    background: rgba(98, 0, 238, 1);
+    color: white;
+}
+

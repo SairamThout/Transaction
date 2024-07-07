@@ -1,0 +1,25 @@
+.detail{
+    width: 1216px;
+    height: 48px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+    display: grid;
+    grid-template-columns: 64px 120px 480px 224px 224px 104px;
+   
+    
+}
+
+.checkbox input{
+    width: 18px;
+    height: 18px;
+    margin-top: 17px;
+    margin-left: 15px;
+}
+.detail p{
+    color: rgba(0, 0, 0, 0.87);
+}
+.date p{
+    margin-left: 5px;
+}
+.description p{
+    margin-left: 10px;
+}
