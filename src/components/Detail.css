@@ -3,9 +3,11 @@
     height: 48px;
     border-bottom: 1px solid rgba(0, 0, 0, 0.12);
     display: grid;
-    grid-template-columns: 64px 120px 480px 224px 224px 104px;
-   
-    
+    grid-template-columns: 64px 120px 480px 224px 224px 104px;   
+}
+
+.section{
+    background-color: rgba(0, 0, 0, 0.12);
 }
 
 .checkbox input{

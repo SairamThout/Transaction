@@ -1,0 +1,49 @@
+.action {
+    margin-left: auto; /* Aligns the action buttons to the right */
+    opacity: 0; /* Initially hide the buttons */
+    transition: opacity 0.3s; /* Smooth transition for showing/hiding buttons */
+}
+
+.detail:hover .action {
+    opacity: 1; /* Show the buttons when hovering over the .detail div */
+}
+
+.edit-btn{
+    margin-left: 10px;
+    padding: 5px 10px;
+    background-color: white;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+.delete-btn {
+    margin-left: 10px;
+    padding: 5px 10px;
+    background-color: white;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+/* .edit-btn:hover,
+.delete-btn:hover {
+    background-color: #0056b3;
+} */
+
+
+.action{
+    width: 104px;
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+}
+.action button{
+    margin: 5px 0 0 0 ;
+    padding: 0;
+    width: 50px;
+    height: 40px;
+}

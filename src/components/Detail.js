@@ -3,7 +3,7 @@ import "./Detail.css"
 
 function Detail() {
     return (
-        <div className="detail">
+        <div className="detail section">
             <div className="checkbox"><input type="checkbox"></input></div>
             <div className="date"><p>Date</p></div>
             <div className="description"><p>Description</p></div>
