@@ -34,7 +34,9 @@
     background-color: #0056b3;
 } */
 
-
+p{
+    margin-top: 14px;
+}
 .action{
     width: 104px;
     display: flex;
@@ -47,3 +49,7 @@
     width: 50px;
     height: 40px;
 }
+
+/* .transaction{
+    height: 480px;
+} */

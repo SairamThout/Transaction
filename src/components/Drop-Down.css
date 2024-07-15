@@ -1,0 +1,20 @@
+.dropdown{
+    margin: 0;
+    width: 191px;
+}
+
+.btn{
+    background-color: white;
+}
+p{
+    margin-right: 5px;
+    margin-left: 5px;
+}
+
+select{
+    height: 41px;
+    width: 48px;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    border-radius: 5px;
+    margin-top: 5px;
+}

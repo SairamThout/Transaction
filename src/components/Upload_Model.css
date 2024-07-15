@@ -17,10 +17,12 @@
 
 }  
 .uploadclose button{
-    padding: 0;
-    margin:15px 10px 0 0;
-    height: 20px;
-    width: 20px;
+  padding: 0;
+  margin:15px 10px 0 0;
+  height: 20px;
+  width: 20px;
+  border: 0px;
+  background:0px;
 }
 
 .uploaddetails {
@@ -34,12 +36,38 @@
     color: rgba(0, 0, 0, 0.6);
 
 }
-.uploaddetails button{
-    height: 36px;
-    width: 88px;
-    background: rgba(98, 0, 238, 1);
-    border-radius: 5px;
-    border: 0;
-    color: white;
-
+.uploadbutton {
+    position: relative;
+    display: inline-block;
+    
 }
+  
+  .uploadbutton label {
+    display: inline-block;
+    cursor: pointer;
+    padding: 5px 10px;
+    background-color: #007bff;
+    color: white;
+    border-radius: 5px;
+    text-align: center;
+    font-size: 16px;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+  }
+  
+  .uploadbutton label:hover {
+    background-color: #0056b3;
+  }
+  
+  .uploadbutton label div {
+    display: flex;
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+    height: 36px; /* Ensure the <div> takes full height */
+  }
+  
+  .uploadbutton label p {
+    margin-bottom:25px;
+    letter-spacing: 1.5px;
+    color: white;
+  }

@@ -1,0 +1,19 @@
+.buttons{
+    width: 296px;
+    height: 56px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.buttons div{
+    height: 50px;
+    margin-top: 10px;
+    margin-right: 5px;
+}
+
+button{
+    background:0;
+    border: 0;
+
+}

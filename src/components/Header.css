@@ -1,7 +1,7 @@
 .heading {
     width: 1216px;
     height: 48px;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+    /* border-top: 1px solid rgba(0, 0, 0, 0.12); */
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -36,17 +36,22 @@
     width: 113px;
     padding: 0;
     margin-right: 30px;
+    margin-top: 8px;
     border: 0;
     background-color: white;
 }
 
 .add {
-    width: 172px;
+    width: 178px;
     padding: 0;
     background: rgba(98, 0, 238, 1);
     color: white;
     border: 0;
     border-radius: 5px;
+    font-weight: 400;
+    letter-spacing: 1.5px;
+    line-height: 16px;
+    margin-top: 5px;
 }
 
 
