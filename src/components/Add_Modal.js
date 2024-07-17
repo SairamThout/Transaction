@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import "./Add_Modal.css"
 import axios from "axios";
+import { toast } from "react-toastify";
 import currency_symbols from "./currency_code";
 const MODAL_STYLES = {
     position: 'fixed',
@@ -36,14 +37,17 @@ export default function Add_Modal(props) {
         settransaction({ ...transaction, [key]: value });
     }
     async function addtrans(){
-        //insert my current trans into my db
-        console.log(transaction);
+        
+       
         let result=await axios.post("/add", transaction);
         resetTransaction();
-        if(result.data!="Successful") alert(result.data);
+        if (result.data != "Successful") {
+            toast.error(result.data);
+        }
         if (result.data == "Successful") {
             result = (await axios.get("/getdata")).data;
             props.settrans(result);
+            toast.success("Transaction Added")
         }
     
     }

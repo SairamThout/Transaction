@@ -3,8 +3,8 @@ import "./Drop-Down.css";
 
 export default function Drop_Down(props) {
   function handleChange(event) {
-      props.setrow(parseInt(event.target.value)); // Ensure to parse the value as integer if necessary
-      props.setpage(Math.min(props.page, Math.ceil(props.trans.length / parseFloat(event.target.value))));
+      props.setrow(parseInt(event.target.value)); 
+      props.setpage(1);
       
   }
 
@@ -16,6 +16,7 @@ export default function Drop_Down(props) {
         <option value="25">25</option>
         <option value="50">50</option>
       </select>
+     
     </div>
   );
 }

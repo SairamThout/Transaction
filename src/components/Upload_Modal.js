@@ -80,12 +80,17 @@ function convertKeysToLowerCase(obj) {
     return lowerCaseObject;
 }
 
+
+
 export default function UploadModel(props) {
-    const [csvData, setCsvData] = useState([]);
+   
 
+
+    
+   
     async function handleFile(event) {
-        setCsvData([]); // Reset csvData when a new file is uploaded
-
+       
+        props.setcsvdatauploaded(false);
         let isValid = true;
         const parsedData = [];
 
@@ -99,36 +104,56 @@ export default function UploadModel(props) {
                 // Validate each row
                 if (!isValidAmount(obj.amount) || !isValidDate(obj.date) || !isValidDescription(obj.description)) {
                     isValid = false;
-                    console.warn(`Invalid row: ${JSON.stringify(obj)}`);
+                    
                 } else {
                     parsedData.push(obj);
                 }
             },
             complete: async function (result) {
+                
                 if (!isValid) {
-                    alert("File contains some invalid rows. Please correct them and try again.");
-                    setCsvData([]);
+                    
+                    props.setcsvdatauploaded(true);
+                    props.setunsuccessfulclick(true);
+
                 } else {
-                    // Batch insert valid rows into the database
-                    parsedData.map(async (data) => {
+                    let j = 1;
+                    try {   
+                        parsedData.map(async (data) => {
+                            
+                            const result = await axios.post("/add", data);
+                            props.setpercentage(Math.round((j / parsedData.length) * 100));
+                            j++;
+                        })
                         try {
-                        
-                            const response = await axios.post("/add", data);
-                            console.log(response.data); // Log the result of insertion
-    
-                            // After successful insertion, fetch all data from the database
-                            const fetchDataResponse = await axios.get("/getdata");
-                            props.settrans(fetchDataResponse.data) // Log the fetched data
-                        } catch (error) {
-                            console.error("Error inserting rows:", error);
-                        }      
-                    })
-                   
+                            const result = await axios.get("/getdata");
+                            props.settrans(result.data);
+                            props.setsuccessfulclick(true);
+                            props.setcsvdatauploaded(true);
+                        }
+                        catch(err) {
+                            console.log("error fetching row after csv upload");
+                            props.setcsvdatauploaded(true);
+                            props.setunsuccessfulclick(true);
+                        }
+                    }
+                    catch (err) {
+                        console.log("Error while inserting data");
+                        props.setcsvdatauploaded(true);
+                        props.setunsuccessfulclick(true);
+                    }
+
                 }
+               
             }
         });
+       
+       
+
 
         props.setclick(false);
+        props.setpercentage(0);
+        
     }
 
     if (!props.clicked) return null;

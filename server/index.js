@@ -16,9 +16,28 @@ const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
+
+
+const options = {
+    method: 'GET',
+    url: 'https://currency-conversion-and-exchange-rates.p.rapidapi.com/latest',
+    params: {
+      from: 'USD',
+      to: 'EUR,GBP'
+    },
+    headers: {
+      'x-rapidapi-key': 'ce6daa6842mshc71692410912565p141d26jsn61631bdcde73',
+      'x-rapidapi-host': 'currency-conversion-and-exchange-rates.p.rapidapi.com'
+    }
+  };
+
+
+
+
+
 function isValidDescription(description) {
     return description.trim() !== '';
-}
+}   
 function isValidAmount(amount) {
     let parsedAmount = parseFloat(amount);
     return !isNaN(parsedAmount) && parsedAmount > 0;
@@ -52,17 +71,18 @@ function isValidDate(dateStr) {
 
 
 
-app.get("/getdata",async (req, res) => {
+app.get("/getdata",async (req, res) => { //get all data present in database
     let trans = (await db.query("select* from transaction order by id desc")).rows;
    
     res.send(trans);
     
 })
 
-app.get('/get_by_id/:id', async (req, res) => {
+app.get('/get_by_id/:id', async (req, res) => {  //get the row given its id
     const id = req.params.id;
-    let result = [];
     
+    let result = [];
+  
     try {
         // Replace this with your actual database query
         result = await db.query(`select * from transaction where id=${id}`);
@@ -85,7 +105,7 @@ app.get('/get_by_id/:id', async (req, res) => {
 
  
 
-app.post("/add", async (req, res) => {
+app.post("/add", async (req, res) => {   //add a single transaction
     
     
     const { amount, description, date, currency } = req.body;
@@ -93,18 +113,7 @@ app.post("/add", async (req, res) => {
     let done = "not done";
     if (isValidAmount(amount) && isValidDate(date) && isValidDescription(description)) {
         
-        const options = {
-            method: 'GET',
-            url: `https://currency-conversion-and-exchange-rates.p.rapidapi.com/${date}`,
-            params: {
-                from: 'USD',
-                to: 'INR'
-            },
-            headers: {
-                'x-rapidapi-key': '29490b3f6amsh2469df0e0598f72p17189cjsna34e6c967e85',
-                'x-rapidapi-host': 'currency-conversion-and-exchange-rates.p.rapidapi.com'
-            }
-        };
+       
 
         
         
@@ -142,36 +151,21 @@ app.post("/add", async (req, res) => {
 
 
 
-app.post('/update/:id',async (req, res) => {
+app.put('/update/:id',async (req, res) => {    //update a row based on its id
     
     const { amount, description, date, currency } = req.body;
     const id = req.params.id;
     let done = "Invalid Details";
+   
     if (isValidAmount(amount) && isValidDate(date) && isValidDescription(description)) {
 
-        
-        const options = {
-            method: 'GET',
-            url: `https://currency-conversion-and-exchange-rates.p.rapidapi.com/${date}`,
-            params: {
-                from: 'USD',
-                to: 'INR'
-            },
-            headers: {
-                'x-rapidapi-key': '29490b3f6amsh2469df0e0598f72p17189cjsna34e6c967e85',
-                'x-rapidapi-host': 'currency-conversion-and-exchange-rates.p.rapidapi.com'
-            }
-        };
-
-        
-        
-       
-
+    
         try {
             
-            const response = await axios.request(options);
+            // const response = await axios.request(options);
            
-            let inr_amount = (response.data.rates['INR'] / response.data.rates[currency]) * amount;
+            // let inr_amount = (response.data.rates['INR'] / response.data.rates[currency]) * amount;
+            let inr_amount = 100;
             
             try {
                 await db.query(`UPDATE transaction SET date = $1, description = $2, amount = $3, currency = $4, inr_amount = $5 WHERE id = $6`,[date, description, amount, currency, inr_amount, id]);
@@ -206,7 +200,7 @@ app.post('/update/:id',async (req, res) => {
 
 
 
-app.delete('/del',async (req, res) => {
+app.delete('/del',async (req, res) => {   //del a row based on its id
     const id = req.query.id;
     try {
         await db.query(`Delete from transaction where id=${id}`)

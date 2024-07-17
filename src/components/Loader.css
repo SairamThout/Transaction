@@ -1,0 +1,84 @@
+.uploadmodel{
+    display: grid;
+    grid-template-rows: 48px 209px;
+    border-radius: 5px;
+}
+.uploadclose{
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+    background-color: rgba(0, 0, 0, 0.12);
+}
+
+.uploadclose p{
+    margin-left: 10px;
+    font-family: "Roboto", sans-serif;
+    color:rgba(0, 0, 0, 0.6);
+
+}  
+.uploadclose button{
+  padding: 0;
+  margin:15px 10px 0 0;
+  height: 20px;
+  width: 20px;
+  border: 0px;
+  background:0px;
+}
+
+.uploaddetails {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+.uploaddetails p{
+    color: rgba(0, 0, 0, 0.6);
+
+}
+.uploadbutton {
+    position: relative;
+    display: inline-block;
+    
+}
+  
+  .uploadbutton label {
+    display: inline-block;
+    cursor: pointer;
+    padding: 5px 10px;
+    background-color: #007bff;
+    color: white;
+    border-radius: 5px;
+    text-align: center;
+    font-size: 16px;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+  }
+  
+  .uploadbutton label:hover {
+    background-color: #0056b3;
+  }
+  
+  .uploadbutton label div {
+    display: flex;
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+    height: 36px; /* Ensure the <div> takes full height */
+  }
+  
+  .uploadbutton label p {
+    margin-bottom:25px;
+    letter-spacing: 1.5px;
+    color: white;
+  }
+
+  /* HTML: <div class="loader"></div> */
+/* HTML: <div class="loader"></div> */
+/* HTML: <div class="loader"></div> */
+.progress{
+  width: 300px;
+}
+.progress-bar {
+  width: 200px;
+  
+}

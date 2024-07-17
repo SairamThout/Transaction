@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import "./Add_Modal.css";
 import axios from "axios";
 import currency_symbols from "./currency_code";
-
+import { toast } from "react-toastify";
 const MODAL_STYLES = {
   position: 'fixed',
   width: '336px',
@@ -65,14 +65,19 @@ export default function Edit_Modal(props) {
 
   async function editTransaction() {
         try {
-        // Implement your save logic here, e.g., axios.post('/save_transaction', transaction);
+       
             
-            let result=await axios.post(`/update/${props.editbutton.id}`,transaction);
+            let result=await axios.put(`/update/${props.editbutton.id}`,transaction);
             resetTransaction();
             props.setclick({ clicked: false, id: "" });
-            alert(result.data);
-            result = await axios.get('/getdata');
-            props.settrans(result.data);
+           
+            if (result.data === "Edit Successful") {
+              result = await axios.get('/getdata');
+              props.settrans(result.data);
+              toast.success("Edited Successfully");
+            }
+            else toast.error(result.data);
+          
         } catch (error) {
             console.error("Error saving transaction:", error);
         }

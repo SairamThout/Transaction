@@ -8,6 +8,11 @@ import Upload_Model from './Upload_Modal';
 import axios from 'axios';
 import Edit_Modal from './Edit_Modal';
 import Pagination from './Pagination';
+import Loader from './Loader';
+import Successful from './Successful_Model';
+import Unsuccessful from './Unsuccessful_Modal';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 let result = (await axios.get("/getdata")).data;
 
 function App() {
@@ -18,7 +23,10 @@ function App() {
   const [trans, settrans] = useState([...result]);
   const [page, setpage] = useState(1);
   const [row_per_page, set_row_per_page] = useState(10);
-
+  const [csvdatauploaded, setcsvdatauploaded] = useState(true);
+  const [successfulclicked, setsuccessfulclick] = useState(false);
+  const [unsuccessfulclicked, setunsuccessfulclick] = useState(false);
+  const [percentage, setpercentage] = useState(0);
 
 
   return (
@@ -27,10 +35,14 @@ function App() {
         <Detail />
         <Transaction trans={trans} settrans={settrans} setedit={seteditbutton} page={page} row={row_per_page} />
       <Pagination page={ page} setpage={setpage} row={row_per_page} setrow={set_row_per_page} trans={trans} />
-        <Add_Modal clicked={addbuttonclicked} setclick={setaddbuttonclicked} trans={trans} settrans={settrans} />
-        <Edit_Modal editbutton={editbutton} setclick={seteditbutton} settrans={settrans} />
-        <Upload_Model clicked={uploadbuttonclicked} setclick={setuploadbuttonclicked} trans={trans} settrans={settrans}/>
-      </div>
+        <Add_Modal  clicked={addbuttonclicked} setclick={setaddbuttonclicked} trans={trans} settrans={settrans}  />
+        <Edit_Modal  editbutton={editbutton} setclick={seteditbutton} settrans={settrans} />
+        <Upload_Model  setpercentage={setpercentage} setsuccessfulclick={setsuccessfulclick} setunsuccessfulclick={setunsuccessfulclick} setcsvdatauploaded={setcsvdatauploaded} clicked={uploadbuttonclicked} setclick={setuploadbuttonclicked} trans={trans} settrans={settrans}/>
+      <Loader percentage={percentage} clicked={csvdatauploaded} setclick={setcsvdatauploaded}></Loader>
+      <Successful clicked={successfulclicked} setclick={setsuccessfulclick}></Successful>
+      <Unsuccessful clicked={unsuccessfulclicked} setclick={setunsuccessfulclick}></Unsuccessful>
+      <ToastContainer position='top-right'/>
+    </div>
     );
 }
 
