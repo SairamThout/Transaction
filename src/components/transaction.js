@@ -27,32 +27,40 @@ function Transaction(props) {
     async function deletetrans(event) {
     
         const id = event.currentTarget.value;
-        
-        await axios.delete(`/del`, { params: { id } });
-        const result = props.trans.filter((obj) => {
-            return obj.id != id;
-        })
-        props.settrans(result);
-        toast.success("Deleted ");
+
+        try {
+            const response=await axios.delete(`/del`, { params: { id } });
+            props.settrans((trans) => {
+                const new_trans = trans.filter((obj) => {
+                    return (obj.id != id);
+                })
+                return new_trans;
+            })
+            toast.success(response.data);
+        }
+        catch(error) {
+            toast.error(error.response.data);
+        }
     
     }
 
 
     function do_necessary(event) {
-        
-        props.setedit({ clicked: true, id: event.currentTarget.value });
+        const id = event.currentTarget.value;
+        props.setedit({ clicked: true, id: id});
     }
 
     function print(obj) {
-        if (!obj) return null
+        if (!obj) return null;
+       
         return (
             <div className="detail">
                 
                 <div className="checkbox"><input type="checkbox"></input></div>
                 <div className="date"><p>{formatInputDate(obj.date)}</p></div>
-                <div className="description"><p>{obj.description.slice(0,20)+"...."}</p></div>
+                <div className="description"><p>{(obj.description.length>20)?obj.description.slice(0,20)+"...":obj.description}</p></div>
                 <div className="org"><p>{currency_obj[`${obj.currency}`]+ " "+ obj.amount}</p></div>
-                <div className="amount"><p>₹  {obj.inr_amount.toFixed(2)}</p></div>
+                <div className="amount"><p>₹ {obj.inr_amount}</p></div>
                 <div className="action">
                     <button className="edit-btn" name="edit" value={obj.id} onClick={do_necessary} ><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="black" class="bi bi-pencil-square" viewBox="0 0 16 16">
                         <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />

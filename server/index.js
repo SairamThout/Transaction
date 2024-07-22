@@ -13,26 +13,25 @@ const db = new pg.Client({
 })
 db.connect();
 const app = express();
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
+app.use(bodyParser.json({ limit: '10mb' }));
+app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
 
 
 
-const options = {
-    method: 'GET',
-    url: 'https://currency-conversion-and-exchange-rates.p.rapidapi.com/latest',
-    params: {
-      from: 'USD',
-      to: 'EUR,GBP'
-    },
-    headers: {
-      'x-rapidapi-key': 'ce6daa6842mshc71692410912565p141d26jsn61631bdcde73',
-      'x-rapidapi-host': 'currency-conversion-and-exchange-rates.p.rapidapi.com'
+function get_config (date) {
+    return {
+        method: 'GET',
+        url: `https://currency-conversion-and-exchange-rates.p.rapidapi.com/${date}`,
+        params: {
+            from: 'USD',
+            to: 'INR'
+        },
+        headers: {
+            'x-rapidapi-key': '58a0d8150fmshfb8beac6935f4e1p1c15f9jsnfcb684fce61e',
+            'x-rapidapi-host': 'currency-conversion-and-exchange-rates.p.rapidapi.com'
+        }
     }
-  };
-
-
-
+}
 
 
 function isValidDescription(description) {
@@ -72,11 +71,18 @@ function isValidDate(dateStr) {
 
 
 app.get("/getdata",async (req, res) => { //get all data present in database
-    let trans = (await db.query("select* from transaction order by id desc")).rows;
-   
-    res.send(trans);
+    
+    try {
+        let trans = (await db.query("select* from transaction order by id desc")).rows;
+
+        res.status(200).send(trans);
+    }
+    catch {
+        res.status(500).send("Error while retreiving data from database");
+    } 
     
 })
+
 
 app.get('/get_by_id/:id', async (req, res) => {  //get the row given its id
     const id = req.params.id;
@@ -84,13 +90,81 @@ app.get('/get_by_id/:id', async (req, res) => {  //get the row given its id
     let result = [];
   
     try {
-        // Replace this with your actual database query
+
         result = await db.query(`select * from transaction where id=${id}`);
+        return res.send(result.rows[0]);
         
-        res.send(result.rows[0]); // Send back the rows retrieved from the database
     } catch (err) {
+
         console.error("Error retrieving transaction:", err);
-        res.status(500).send("Error retrieving transaction"); // Handle the error appropriately
+        res.status(500).send("Error retrieving transaction"); 
+
+    }
+});
+
+
+
+
+const BATCH_SIZE = 500; // Define a suitable batch size
+
+app.post("/add", async (req, res) => {
+    let data = req.body;
+
+    // Validate first
+    let currency_data;
+
+    try {
+        const result = (await axios.get("https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/inr.json")).data;
+        currency_data = result.inr;
+    } catch (error) {
+        console.log("Api is not working", error);
+        return res.status(500).send("We are facing some error while fetching currency data");
+    }
+
+    // Validation and conversion
+    for (let obj of data) {
+        if (!isValidDescription(obj.description)) {
+            return res.status(400).send("Invalid Description");
+        }
+        if (!isValidAmount(obj.amount)) {
+            return res.status(400).send("Amount should be positive");
+        }
+        if (!isValidDate(obj.date)) {
+            return res.status(400).send("Invalid Date");
+        }
+
+        obj.inr_amount = (obj.amount / (currency_data[obj.currency.toLowerCase()] ? currency_data[obj.currency.toLowerCase()] : 1)).toFixed(2);
+    }
+
+    // Prepare values for insertion
+    const insertValues = data.map((item) => [
+        item.date,
+        item.description,
+        item.amount,
+        item.currency,
+        item.inr_amount,
+    ]);
+
+    try {
+        let allResponses = [];
+
+        for (let i = 0; i < insertValues.length; i += BATCH_SIZE) {
+            const batch = insertValues.slice(i, i + BATCH_SIZE);
+            const values = batch.flat();
+            const query = `
+                INSERT INTO transaction (date, description, amount, currency, inr_amount)
+                VALUES ${batch.map((_, index) => `($${index * 5 + 1}, $${index * 5 + 2}, $${index * 5 + 3}, $${index * 5 + 4}, $${index * 5 + 5})`).join(',')}
+                RETURNING *
+            `;
+            const response = await db.query(query, values);
+            allResponses.push(...response.rows);
+           
+        }
+
+        return res.status(200).send(allResponses.reverse());
+    } catch (error) {
+        console.log("Error while inserting data into database", error);
+        return res.status(500).send("We are facing some error while inserting your data");
     }
 });
 
@@ -102,93 +176,55 @@ app.get('/get_by_id/:id', async (req, res) => {  //get the row given its id
 
 
 
-
- 
-
-app.post("/add", async (req, res) => {   //add a single transaction
-    
-    
-    const { amount, description, date, currency } = req.body;
-    
-    let done = "not done";
-    if (isValidAmount(amount) && isValidDate(date) && isValidDescription(description)) {
-        
-       
-
-        
-        
-       
-
-        try {
-            
-            // const response = await axios.request(options);
-           
-            // let inr_amount = (response.data.rates['INR'] / response.data.rates[currency]) * amount;
-            let inr_amount = 100;
-            try {
-                await db.query("Insert into transaction (date,description,amount,currency,inr_amount) Values($1,$2,$3,$4,$5)", [date, description, amount, currency,inr_amount]);
-                done = "Successful";
-            }
-            catch (err) {
-                done = "OOPS!!";
-            }
-        }
-        catch(err) {
-            console.log("api ne hug diya");
-        }
-
-        
-    }
-    else if (!isValidDescription(description)) done = "Description cant be empty";
-    else if (!isValidDate(date)) done = "Invalid Date";
-    else {
-        done = "Invalid Amount";
-    }
-    res.send(done); 
-    
-})
-
-
-
-
 app.put('/update/:id',async (req, res) => {    //update a row based on its id
     
-    const { amount, description, date, currency } = req.body;
-    const id = req.params.id;
-    let done = "Invalid Details";
+    
+    let obj = req.body;
+    obj.id = req.params.id;
    
-    if (isValidAmount(amount) && isValidDate(date) && isValidDescription(description)) {
+
+    //validating the details first
+
+    if (!isValidAmount(obj.amount)) {
+        return res.status(400).send("Amount should be positive");
+    }
+    if (!isValidDate(obj.date)) {
+        return res.status(400).send("Invalid Date"); 
+    }
+    if (!isValidDescription(obj.description)) {
+        return res.status(400).send("Description cant be empty");
+    }
+   
+    
 
     
-        try {
-            
-            // const response = await axios.request(options);
-           
-            // let inr_amount = (response.data.rates['INR'] / response.data.rates[currency]) * amount;
-            let inr_amount = 100;
-            
-            try {
-                await db.query(`UPDATE transaction SET date = $1, description = $2, amount = $3, currency = $4, inr_amount = $5 WHERE id = $6`,[date, description, amount, currency, inr_amount, id]);
-                done = "Edit Successful";
-            }
-            catch (err) {
-                done = "OOPS!!";
-            }
-        }
-        catch(err) {
-            console.log("api ne hug diya");
-        }
-
+    try {
         
-    }
-    else if (!isValidDescription(description)) done = "Description cant be empty";
-    else if (!isValidDate(date)) done = "Invalid Date";
-    else {
-        done = "Invalid Amount";
-    }
-    res.send(done); 
+        //update the inr_amount based on the date provided
+        
+        let modified_option = options;
+        modified_option.params.date = obj.date;
+        const response = (await axios.request(get_config(obj.date))).data;
+        obj.inr_amount = ((response.rates["INR"] / response.rates[obj.currency]) * obj.amount).toFixed(2);
+        
+        try {
+            await db.query(`UPDATE transaction SET date = $1, description = $2, amount = $3, currency = $4, inr_amount = $5 WHERE id = $6`,[obj.date,obj.description,obj.amount,obj.currency,obj.inr_amount,obj.id]);
+            return res.status(200).send(obj);
+        }
+        catch (err) {
+            console.log("Error while updating data into database", err);
+            return res.status(500).send("Error while updating data into database");
+        }
 
-       
+    }
+    catch (err) {
+        console.log("Api is not working", err);
+        return res.status(500).send("Api limit exceded");
+    }
+
+     
+   
+
     
 })
 
@@ -202,13 +238,15 @@ app.put('/update/:id',async (req, res) => {    //update a row based on its id
 
 app.delete('/del',async (req, res) => {   //del a row based on its id
     const id = req.query.id;
+    
     try {
-        await db.query(`Delete from transaction where id=${id}`)
+        await db.query(`Delete from transaction where id=${id}`);
+        res.status(200).send("Deleted Successfuly");
     }
     catch (err) {
-        console.log("data not deleted ");
+        console.error("Error while deleting data from database", err);
+        return res.status(500).send("We cant find the data to delete");
     }
-    res.send("done");
     
 });
 

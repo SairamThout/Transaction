@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import "./Upload_Model.css"
 import Papa from "papaparse";
 import axios from "axios";
-
+import { toast } from "react-toastify";
 const MODAL_STYLES = {
     position: 'fixed',
     width: '336px',
@@ -33,52 +33,46 @@ const styles = {
     color: "white"
 };
 
-function isValidDescription(description) {
-    return description.trim() !== '';
-}
 
-function isValidAmount(amount) {
-    let parsedAmount = parseFloat(amount);
-    return !isNaN(parsedAmount) && parsedAmount > 0;
-}
+function transformArray(arr) {
+    return arr.map(obj => {
+        // Convert keys to lowercase
+        const newObj = {};
+        for (let key in obj) {
+            newObj[key.toLowerCase()] = obj[key];
+        }
 
-function isValidDate(dateStr) {
-    if (dateStr.trim() !== '') {
-        let date = new Date(dateStr);
-        let currentDate = new Date();
-        return date <= currentDate;
-    }
-    return false;
-}
+        // Convert date format if 'date' key exists and is valid
+        if (newObj.hasOwnProperty('date')) {
+            const dateParts = newObj.date.split('-');
+            if (dateParts.length === 3) {
+                const day = parseInt(dateParts[0], 10);
+                const month = parseInt(dateParts[1], 10);
+                const year = parseInt(dateParts[2], 10);
 
-function convertDateFormat(dateString) {
-    const trimmedDateString = dateString.trim();
-    const parts = trimmedDateString.split('-');
-    if (parts.length !== 3) {
-        return null; // Handle invalid date format
-    }
-    const year = parts[2];
-    const month = parts[0];
-    const day = parts[1];
-    const date = new Date(year, month - 1, day);
-    const formattedDate = date.toISOString().split('T')[0];
-    return formattedDate;
-}
+                // Validate if it's a valid date
+                const isValidDate = !isNaN(day) && !isNaN(month) && !isNaN(year) &&
+                                    day >= 1 && day <= 31 &&
+                                    month >= 1 && month <= 12 &&
+                                    year >= 1000 && year <= 9999;
 
-function convertKeysToLowerCase(obj) {
-    if (!obj || typeof obj !== 'object') {
-        throw new Error('Invalid input. Expected an object.');
-    }
+                if (isValidDate) {
+                    // Check if it's not a future date
+                    const inputDate = new Date(year, month - 1, day); // month - 1 because months are 0-indexed in Date constructor
+                    const currentDate = new Date();
+                    if (inputDate <= currentDate) {
+                        // Format date as yyyy-mm-dd
+                        newObj.date = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+                    }
+                }
+            }
+        }
 
-    const keys = Object.keys(obj);
-    const lowerCaseObject = {};
-
-    keys.forEach(key => {
-        lowerCaseObject[key.toLowerCase()] = obj[key];
+        return newObj;
     });
-
-    return lowerCaseObject;
 }
+
+
 
 
 
@@ -91,68 +85,31 @@ export default function UploadModel(props) {
     async function handleFile(event) {
        
         props.setcsvdatauploaded(false);
-        let isValid = true;
-        const parsedData = [];
-
+        
         Papa.parse(event.currentTarget.files[0], {
             header: true,
             skipEmptyLines: true,
-            step: function (row) {
-                let obj = convertKeysToLowerCase(row.data);
-                obj.date = convertDateFormat(obj.date);
-
-                // Validate each row
-                if (!isValidAmount(obj.amount) || !isValidDate(obj.date) || !isValidDescription(obj.description)) {
-                    isValid = false;
-                    
-                } else {
-                    parsedData.push(obj);
-                }
-            },
             complete: async function (result) {
-                
-                if (!isValid) {
+                const arr = transformArray(result.data);
+               
+                try {
                     
+                    const response = await axios.post("/add", arr);
+                    props.settrans((prev) => [...(response.data), ...prev]);
+                    props.setcsvdatauploaded(true);
+                    props.setsuccessfulclick(true);
+                }
+                catch (err) {
+                    toast.error(err.response.data);
                     props.setcsvdatauploaded(true);
                     props.setunsuccessfulclick(true);
-
-                } else {
-                    let j = 1;
-                    try {   
-                        parsedData.map(async (data) => {
-                            
-                            const result = await axios.post("/add", data);
-                            props.setpercentage(Math.round((j / parsedData.length) * 100));
-                            j++;
-                        })
-                        try {
-                            const result = await axios.get("/getdata");
-                            props.settrans(result.data);
-                            props.setsuccessfulclick(true);
-                            props.setcsvdatauploaded(true);
-                        }
-                        catch(err) {
-                            console.log("error fetching row after csv upload");
-                            props.setcsvdatauploaded(true);
-                            props.setunsuccessfulclick(true);
-                        }
-                    }
-                    catch (err) {
-                        console.log("Error while inserting data");
-                        props.setcsvdatauploaded(true);
-                        props.setunsuccessfulclick(true);
-                    }
-
                 }
-               
+                
             }
         });
        
-       
-
-
         props.setclick(false);
-        props.setpercentage(0);
+        
         
     }
 

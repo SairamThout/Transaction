@@ -20,14 +20,15 @@ function App() {
   const [addbuttonclicked, setaddbuttonclicked] = useState(false);
   const [uploadbuttonclicked, setuploadbuttonclicked] = useState(false);
   const [editbutton, seteditbutton] = useState({clicked:false,id:""});
-  const [trans, settrans] = useState([...result]);
+  const [trans, settrans] = useState(result);
   const [page, setpage] = useState(1);
   const [row_per_page, set_row_per_page] = useState(10);
   const [csvdatauploaded, setcsvdatauploaded] = useState(true);
   const [successfulclicked, setsuccessfulclick] = useState(false);
   const [unsuccessfulclicked, setunsuccessfulclick] = useState(false);
-  const [percentage, setpercentage] = useState(0);
-
+  
+  
+  
 
   return (
       <div className='container'>
@@ -35,13 +36,13 @@ function App() {
         <Detail />
         <Transaction trans={trans} settrans={settrans} setedit={seteditbutton} page={page} row={row_per_page} />
       <Pagination page={ page} setpage={setpage} row={row_per_page} setrow={set_row_per_page} trans={trans} />
-        <Add_Modal  clicked={addbuttonclicked} setclick={setaddbuttonclicked} trans={trans} settrans={settrans}  />
+        <Add_Modal  clicked={addbuttonclicked} setclick={setaddbuttonclicked} settrans={settrans}  />
         <Edit_Modal  editbutton={editbutton} setclick={seteditbutton} settrans={settrans} />
-        <Upload_Model  setpercentage={setpercentage} setsuccessfulclick={setsuccessfulclick} setunsuccessfulclick={setunsuccessfulclick} setcsvdatauploaded={setcsvdatauploaded} clicked={uploadbuttonclicked} setclick={setuploadbuttonclicked} trans={trans} settrans={settrans}/>
-      <Loader percentage={percentage} clicked={csvdatauploaded} setclick={setcsvdatauploaded}></Loader>
+        <Upload_Model   setsuccessfulclick={setsuccessfulclick} setunsuccessfulclick={setunsuccessfulclick} setcsvdatauploaded={setcsvdatauploaded} clicked={uploadbuttonclicked} setclick={setuploadbuttonclicked}  settrans={settrans}/>
+      <Loader  clicked={csvdatauploaded} setclick={setcsvdatauploaded}></Loader>
       <Successful clicked={successfulclicked} setclick={setsuccessfulclick}></Successful>
       <Unsuccessful clicked={unsuccessfulclicked} setclick={setunsuccessfulclick}></Unsuccessful>
-      <ToastContainer position='top-right'/>
+      <ToastContainer position='top-right' limit={5}/>
     </div>
     );
 }

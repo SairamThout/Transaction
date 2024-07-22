@@ -23,6 +23,9 @@ const OVERLAY_STYLES = {
   zIndex: 1000
 };
 
+
+
+
 export default function Edit_Modal(props) {
   const [transaction, setTransaction] = useState({
     description: "",
@@ -32,15 +35,18 @@ export default function Edit_Modal(props) {
   });
 
   useEffect(() => {
+    const id = props.editbutton.id;
+    console.log(id);
     async function fetchData() {
       try {
-        const result = await axios.get(`/get_by_id/${props.editbutton.id}`);
-        const data = result.data;
+        const result = (await axios.get(`/get_by_id/${id}`)).data;
+       
         setTransaction({
-          description: data.description || "",
-          currency: data.currency || "AED",
-          amount: data.amount || "",
-          date: data.date || ""
+          description: result.description || "",
+          currency: result.currency || "AED",
+          amount: result.amount || "",
+          date: result.date || "",
+          
         });
       } catch (error) {
         console.error("Error fetching transaction:", error);
@@ -55,7 +61,8 @@ export default function Edit_Modal(props) {
   if (!props.editbutton.clicked) return null;
 
   function resetTransaction() {
-    setTransaction({ description: "", currency: "AED", amount: "", date: "" });
+    setTransaction({ description: "", currency: "AED", amount: "", date: "", });
+    props.setclick({ clicked: false, id: "" });
   }
 
   function updateTransaction(event) {
@@ -64,23 +71,36 @@ export default function Edit_Modal(props) {
   }
 
   async function editTransaction() {
-        try {
-       
-            
-            let result=await axios.put(`/update/${props.editbutton.id}`,transaction);
-            resetTransaction();
-            props.setclick({ clicked: false, id: "" });
-           
-            if (result.data === "Edit Successful") {
-              result = await axios.get('/getdata');
-              props.settrans(result.data);
-              toast.success("Edited Successfully");
-            }
-            else toast.error(result.data);
+    try {
+
+      let new_obj = (await axios.put(`/update/${props.editbutton.id}`, transaction)).data;
+     
+
+      props.settrans((trans) => {
+        
+        const new_trans = trans.map((obj) => {
+          if (obj.id == new_obj.id) {
+            return new_obj;
+          }
+          else {
+            return obj;
+          }
           
-        } catch (error) {
-            console.error("Error saving transaction:", error);
-        }
+        });
+
+        return new_trans;
+      
+      });
+
+
+      toast.success("Edited Successfully");
+      resetTransaction();
+          
+
+    } catch (error) {
+      toast.error(error.response.data);
+    }
+    resetTransaction();
   }
 
   return (

@@ -30,26 +30,25 @@ export default function Add_Modal(props) {
     if (!props.clicked) return null; 
     function resetTransaction() {
         settransaction({ description: "", currency: "AED", amount: "", date: "" });
+        props.setclick(false);
     }
     function update_transaction(event) {
         const key = event.target.name;
         const value = event.target.value;
-        settransaction({ ...transaction, [key]: value });
+        settransaction({...transaction,[key]:value});
     }
     async function addtrans(){
         
-       
-        let result=await axios.post("/add", transaction);
+        try {
+            let result = await axios.post("/add", [transaction]);
+            props.settrans((prev) => [...(result.data), ...prev]);
+            toast.success("Transaction Added");
+        }
+        catch (err) {
+            toast.error(err.response.data);
+        }
         resetTransaction();
-        if (result.data != "Successful") {
-            toast.error(result.data);
-        }
-        if (result.data == "Successful") {
-            result = (await axios.get("/getdata")).data;
-            props.settrans(result);
-            toast.success("Transaction Added")
-        }
-    
+       
     }
     return (
         <div>
@@ -57,7 +56,7 @@ export default function Add_Modal(props) {
             <div style={MODAL_STYLES} className="addmodal">
                 <div className="addclose">
                     <p>Add Transaction</p>
-                    <button onClick={() => { resetTransaction(); props.setclick(false) }}><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"   >
+                    <button onClick={() => { resetTransaction(); }}><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"   >
   <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"/>
 </svg></button>
                 </div>
@@ -86,10 +85,10 @@ export default function Add_Modal(props) {
                     <div className="addbuttons">
                         
                         <div>
-                            <button onClick={() => { resetTransaction(); props.setclick(false) }} className="addcancel">CANCEL</button>
+                            <button onClick={() => { resetTransaction();  }} className="addcancel">CANCEL</button>
                         </div>
                         <div>
-                        <button className="addsave" onClick={() => { addtrans(); props.setclick(false); }}>SAVE</button>
+                        <button className="addsave" onClick={() => { addtrans();}}>SAVE</button>
                         </div>
                         
                     </div>

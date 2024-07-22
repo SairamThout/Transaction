@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import "./Loader.css"
 import ProgressBar from 'react-bootstrap/ProgressBar';
+import Button from 'react-bootstrap/Button';
+import Spinner from 'react-bootstrap/Spinner';
 
 const MODAL_STYLES = {
     position: 'fixed',
@@ -48,8 +50,18 @@ export default function Loader(props) {
                 </div>
                 <div className="uploaddetails">
                     
-                    <div className="uploadbutton loader">
-                        <ProgressBar now={props.percentage} animated label={props.percentage+"%"} />
+                    <div className="uploadbutton">
+                        <Button variant="primary" disabled>
+                            Uploading...
+                            <Spinner
+                                as="span"
+                                animation="grow"
+                                size="sm"
+                                role="status"
+                                aria-hidden="true"
+                            />
+                            
+                        </Button>
                     </div>
                 </div>
             </div>
