@@ -23,13 +23,27 @@ const MODAL_STYLES = {
     backgroundColor: 'rgba(0, 0, 0, .7)',
     zIndex: 1000
   }
-  
+function convertDateFormat1(dateString) {
+// Split the input string by '-'
+    var parts = dateString.split('-');
+
+    // Rearrange the parts array to DD-MM-YYYY format
+    var yyyy = parts[0];
+    var mm = parts[1];
+    var dd = parts[2];
+
+    // Concatenate the rearranged parts into a new date string
+    var ddMMyyyy = dd + '-' + mm + '-' + yyyy;
+
+    return ddMMyyyy;
+}
+   
 export default function Add_Modal(props) {
     
-    const [transaction, settransaction] = useState({description:"",currency:"AED",amount:"",date:""});
+    const [transaction, settransaction] = useState({Description:"",Currency:"AED",Amount:"",Date:""});
     if (!props.clicked) return null; 
     function resetTransaction() {
-        settransaction({ description: "", currency: "AED", amount: "", date: "" });
+        settransaction({Description:"",Currency:"AED",Amount:"",Date:""});
         props.setclick(false);
     }
     function update_transaction(event) {
@@ -38,14 +52,15 @@ export default function Add_Modal(props) {
         settransaction({...transaction,[key]:value});
     }
     async function addtrans(){
-        
+        transaction.Date = convertDateFormat1(transaction.Date);
         try {
-            let result = await axios.post("/add", [transaction]);
-            props.settrans((prev) => [...(result.data), ...prev]);
+            let result = await axios.post("/transaction", transaction);
+            props.settrans((prev) => [result.data.data, ...prev]);
             toast.success("Transaction Added");
         }
         catch (err) {
-            toast.error(err.response.data);
+            console.log(err);
+            toast.error(err.response.data.message);
         }
         resetTransaction();
        
@@ -64,21 +79,21 @@ export default function Add_Modal(props) {
                 <div className="adddetails">
                     
                         <div className="additem1">
-                            <input name="description" onChange={update_transaction} value={transaction.description} type="text" placeholder="Transaction Description" required></input>
+                            <input name="Description" onChange={update_transaction} value={transaction.Description} type="text" placeholder="Transaction Description" required></input>
                         </div>
                         <div className="additem2">
                             <div>
-                                <select name="currency" onChange={update_transaction}>
+                                <select name="Currency" onChange={update_transaction}>
                                     {Object.keys(currency_symbols).map((obj)=> <option value={obj}>{obj}</option>)}
                                 </select>
                             </div>
                             <div>
-                                <input type="number"  placeholder="Original Amount" name="amount" value={transaction.amount} onChange={update_transaction} required></input>
+                                <input type="number"  placeholder="Original Amount" name="Amount" value={transaction.Amount} onChange={update_transaction} required></input>
                             </div>
                         
                         </div>
                         <div className="additem3">
-                            <input type="date"   name="date" value={transaction.date} onChange={update_transaction} required></input>
+                            <input type="date"   name="Date" value={transaction.Date} onChange={update_transaction} required></input>
                         </div>
                         
                     </div>

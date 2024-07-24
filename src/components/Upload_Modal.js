@@ -1,6 +1,5 @@
-import React, { useState } from "react";
+import React from "react";
 import "./Upload_Model.css"
-import Papa from "papaparse";
 import axios from "axios";
 import { toast } from "react-toastify";
 const MODAL_STYLES = {
@@ -34,48 +33,6 @@ const styles = {
 };
 
 
-function transformArray(arr) {
-    return arr.map(obj => {
-        // Convert keys to lowercase
-        const newObj = {};
-        for (let key in obj) {
-            newObj[key.toLowerCase()] = obj[key];
-        }
-
-        // Convert date format if 'date' key exists and is valid
-        if (newObj.hasOwnProperty('date')) {
-            const dateParts = newObj.date.split('-');
-            if (dateParts.length === 3) {
-                const day = parseInt(dateParts[0], 10);
-                const month = parseInt(dateParts[1], 10);
-                const year = parseInt(dateParts[2], 10);
-
-                // Validate if it's a valid date
-                const isValidDate = !isNaN(day) && !isNaN(month) && !isNaN(year) &&
-                                    day >= 1 && day <= 31 &&
-                                    month >= 1 && month <= 12 &&
-                                    year >= 1000 && year <= 9999;
-
-                if (isValidDate) {
-                    // Check if it's not a future date
-                    const inputDate = new Date(year, month - 1, day); // month - 1 because months are 0-indexed in Date constructor
-                    const currentDate = new Date();
-                    if (inputDate <= currentDate) {
-                        // Format date as yyyy-mm-dd
-                        newObj.date = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
-                    }
-                }
-            }
-        }
-
-        return newObj;
-    });
-}
-
-
-
-
-
 export default function UploadModel(props) {
    
 
@@ -83,34 +40,31 @@ export default function UploadModel(props) {
     
    
     async function handleFile(event) {
-       
         props.setcsvdatauploaded(false);
-        
-        Papa.parse(event.currentTarget.files[0], {
-            header: true,
-            skipEmptyLines: true,
-            complete: async function (result) {
-                const arr = transformArray(result.data);
-               
-                try {
-                    
-                    const response = await axios.post("/add", arr);
-                    props.settrans((prev) => [...(response.data), ...prev]);
-                    props.setcsvdatauploaded(true);
-                    props.setsuccessfulclick(true);
-                }
-                catch (err) {
-                    toast.error(err.response.data);
-                    props.setcsvdatauploaded(true);
-                    props.setunsuccessfulclick(true);
-                }
-                
-            }
-        });
-       
-        props.setclick(false);
-        
-        
+        const file = event.target.files[0];
+        if (file) {
+            const formData = new FormData();
+            formData.append('csv', file);
+
+            axios.post('http://localhost:8080/transaction/csv', formData, {
+                headers: {
+                 'Content-Type': 'multipart/form-data',
+                },
+            })
+                .then((response) => {
+                response.data.data.reverse();
+                props.settrans((prev) => [...(response.data.data).reverse(), ...prev]);
+                props.setcsvdatauploaded(true);
+                props.setclick(false);
+                props.setsuccessfulclick(true);
+            })
+            .catch((error) => {
+                toast.error(error.response.data.message);
+                props.setcsvdatauploaded(true);
+                props.setclick(false);
+                props.setunsuccessfulclick(true);
+            });
+        }
     }
 
     if (!props.clicked) return null;

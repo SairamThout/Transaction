@@ -13,7 +13,7 @@ import Successful from './Successful_Model';
 import Unsuccessful from './Unsuccessful_Modal';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-let result = (await axios.get("/getdata")).data;
+let result = (await axios.get("/transaction")).data.data;
 
 function App() {
 
@@ -27,9 +27,6 @@ function App() {
   const [successfulclicked, setsuccessfulclick] = useState(false);
   const [unsuccessfulclicked, setunsuccessfulclick] = useState(false);
   
-  
-  
-
   return (
       <div className='container'>
         <Header setaddclick={setaddbuttonclicked} setuploadclick={setuploadbuttonclicked}  />
@@ -37,7 +34,7 @@ function App() {
         <Transaction trans={trans} settrans={settrans} setedit={seteditbutton} page={page} row={row_per_page} />
       <Pagination page={ page} setpage={setpage} row={row_per_page} setrow={set_row_per_page} trans={trans} />
         <Add_Modal  clicked={addbuttonclicked} setclick={setaddbuttonclicked} settrans={settrans}  />
-        <Edit_Modal  editbutton={editbutton} setclick={seteditbutton} settrans={settrans} />
+        <Edit_Modal  editbutton={editbutton} seteditbutton={seteditbutton} settrans={settrans} />
         <Upload_Model   setsuccessfulclick={setsuccessfulclick} setunsuccessfulclick={setunsuccessfulclick} setcsvdatauploaded={setcsvdatauploaded} clicked={uploadbuttonclicked} setclick={setuploadbuttonclicked}  settrans={settrans}/>
       <Loader  clicked={csvdatauploaded} setclick={setcsvdatauploaded}></Loader>
       <Successful clicked={successfulclicked} setclick={setsuccessfulclick}></Successful>
