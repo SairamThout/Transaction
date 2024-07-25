@@ -19,7 +19,7 @@ import dbError from "./db_errors.js";
 async function getAllTransactions() {
     
     try {
-        const result = await db.query("Select * from transaction order by id desc");
+        const result = await db.query(`Select * from transaction where ispresent=${1} order by id desc `);
         return result.rows;
     }
     catch (error) {
@@ -34,7 +34,7 @@ async function getAllTransactions() {
 async function getTransactionById(id) {
 
     try {
-        const result = await db.query('SELECT * FROM transaction WHERE id = $1', [id]);
+        const result = await db.query('SELECT * FROM transaction WHERE id = $1 and ispresent=$2', [id,1]);
 
         if (result.rowCount) {
             return result.rows;
@@ -70,7 +70,7 @@ async function addTransaction(transaction) {
 async function updateTransaction(transaction,id) {
     
     try {
-        const result = await db.query("Update transaction set date=$1,description=$2,amount=$3,currency=$4,inr_amount=$5 where id=$6 returning *",[transaction.Date,transaction.Description,transaction.Amount,transaction.Currency,transaction.inrAmount,id]);
+        const result = await db.query("Update transaction set date=$1,description=$2,amount=$3,currency=$4,inr_amount=$5 where id=$6 and ispresent=$7 returning *",[transaction.Date,transaction.Description,transaction.Amount,transaction.Currency,transaction.inrAmount,id,1]);
         
         if (result.rowCount) {
             return result.rows[0];
@@ -118,7 +118,7 @@ async function addBatchTransaction(transaction) {
 async function deleteTransaction(id) {
 
     try {
-        const result=await db.query(`Delete from transaction where id=${id}`);
+        const result=await db.query(`UPDATE transaction SET ispresent =${0} WHERE id=${id}`);
         
         if (result.rowCount) {
             return { status: "Deleted Successfully" };
