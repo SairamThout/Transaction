@@ -26,20 +26,22 @@ function App() {
   const [csvdatauploaded, setcsvdatauploaded] = useState(true);
   const [successfulclicked, setsuccessfulclick] = useState(false);
   const [unsuccessfulclicked, setunsuccessfulclick] = useState(false);
+  const [selectedTrans, setSelectedTrans] = useState([]);
+  const [allChecked, setAllChecked] = useState(false);
   
   return (
       <div className='container'>
-        <Header setaddclick={setaddbuttonclicked} setuploadclick={setuploadbuttonclicked}  />
-        <Detail />
-        <Transaction trans={trans} settrans={settrans} setedit={seteditbutton} page={page} row={row_per_page} />
-      <Pagination page={ page} setpage={setpage} row={row_per_page} setrow={set_row_per_page} trans={trans} />
+        <Header trans={trans} settrans={settrans} setAllChecked={setAllChecked}  selectedTrans={selectedTrans} setSelectedTrans={setSelectedTrans} setaddclick={setaddbuttonclicked} setuploadclick={setuploadbuttonclicked}  />
+        <Detail setAllChecked={setAllChecked} allChecked={allChecked} trans={trans} row_per_page={row_per_page} page={page} selectedTrans={selectedTrans} setSelectedTrans={setSelectedTrans} />
+        <Transaction selectedTrans={selectedTrans} setSelectedTrans={setSelectedTrans} trans={trans} settrans={settrans} setedit={seteditbutton} page={page} row={row_per_page} />
+        <Pagination page={ page} setpage={setpage} row={row_per_page} setrow={set_row_per_page} trans={trans} />
         <Add_Modal  clicked={addbuttonclicked} setclick={setaddbuttonclicked} settrans={settrans}  />
         <Edit_Modal  editbutton={editbutton} seteditbutton={seteditbutton} settrans={settrans} />
         <Upload_Model   setsuccessfulclick={setsuccessfulclick} setunsuccessfulclick={setunsuccessfulclick} setcsvdatauploaded={setcsvdatauploaded} clicked={uploadbuttonclicked} setclick={setuploadbuttonclicked}  settrans={settrans}/>
-      <Loader  clicked={csvdatauploaded} setclick={setcsvdatauploaded}></Loader>
-      <Successful clicked={successfulclicked} setclick={setsuccessfulclick}></Successful>
-      <Unsuccessful clicked={unsuccessfulclicked} setclick={setunsuccessfulclick}></Unsuccessful>
-      <ToastContainer position='top-right' limit={5}/>
+        <Loader  clicked={csvdatauploaded} setclick={setcsvdatauploaded}></Loader>
+        <Successful clicked={successfulclicked} setclick={setsuccessfulclick}></Successful>
+        <Unsuccessful clicked={unsuccessfulclicked} setclick={setunsuccessfulclick}></Unsuccessful>
+        <ToastContainer position='top-right' limit={5}/>
     </div>
     );
 }

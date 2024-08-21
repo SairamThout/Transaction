@@ -18,7 +18,7 @@ router.get("/:id", controller.getTransactionById);
 router.post("/",validateTransaction,handleValidationError, controller.addTransaction);
 
 router.post("/csv", upload.single("csv"),validateRow, controller.addCsvTransaction);
-
+router.delete("/bulkDel", controller.batchDelete);
 
 router.put("/:id",validateTransaction,handleValidationError, controller.updateTransaction);
 

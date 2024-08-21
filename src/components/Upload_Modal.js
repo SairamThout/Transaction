@@ -52,6 +52,7 @@ export default function UploadModel(props) {
                 },
             })
                 .then((response) => {
+                console.log(response);
                 response.data.data.reverse();
                 props.settrans((prev) => [...(response.data.data).reverse(), ...prev]);
                 props.setcsvdatauploaded(true);

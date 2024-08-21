@@ -7,7 +7,7 @@ let currency_data = null;
 
 const url = "http://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/inr.json";
 
-const supportError = (currency) => `We currently don't support the currency : ${transaction.Currency}`;
+const supportError = (currency) => `We currently don't support the currency : ${currency}`;
 const apiError = "Error while fetching data from API";
 
 
@@ -72,7 +72,7 @@ async function getTransactionById(id) {
 
 async function addTransaction(transaction) {
     
-    //get the transaction inr_amount
+    //get the transaction inramount
     try {
         transaction.inrAmount = await getConversion(transaction);
         try {
@@ -99,7 +99,7 @@ async function addCsvTransaction(transaction) {
     for (let i = 0; i < transaction.length; i++){
         
         try {
-            transaction[i].inr_amount = await getConversion(transaction[i]);
+            transaction[i].inramount = await getConversion(transaction[i]);
         }
         catch (error) {
             throw error;
@@ -122,7 +122,7 @@ async function addCsvTransaction(transaction) {
 
 async function updateTransaction(transaction, id) {
 
-    //get the transaction inr_amount
+    //get the transaction inramount
     try {
         transaction.inrAmount = await getConversion(transaction);
         try {
@@ -142,6 +142,18 @@ async function updateTransaction(transaction, id) {
 
 }
 
+async function batchDelete(arr) {
+    
+    try {
+        const result = await db.batchDelete(arr);
+        return result;
+    }
+    catch (error) {
+        throw error;
+    }
+}
+
+
 
 async function deleteTransaction(id) {
    
@@ -156,4 +168,4 @@ async function deleteTransaction(id) {
 }
 
 
-export default { getAllTransactions, getTransactionById, addTransaction, updateTransaction, deleteTransaction,addCsvTransaction };
+export default { batchDelete,getAllTransactions, getTransactionById, addTransaction, updateTransaction, deleteTransaction,addCsvTransaction };

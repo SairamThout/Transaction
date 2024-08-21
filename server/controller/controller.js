@@ -115,5 +115,24 @@ async function deleteTransaction(req, res) {
     
 }
 
-export default { getAllTransactions, getTransactionById, addTransaction, updateTransaction, deleteTransaction,addCsvTransaction };
+async function batchDelete(req,res) {
+    let arr = req.body;
+    if (req.body.selectedTrans) {
+        arr = req.body.selectedTrans;
+    }
+
+    try {
+        const result = await services.batchDelete(arr);
+        res.json({ status: message.deleted, message: result });
+    }
+    catch (error) {
+        if (isCustomError(error)) {
+            res.status(error.status || 500).json({ status: message.failed, message: error.message });
+        } else {
+            res.status(500).json({ status: message.failed, message: 'An unexpected error occurred' });
+        }
+    }
+}
+
+export default {batchDelete, getAllTransactions, getTransactionById, addTransaction, updateTransaction, deleteTransaction,addCsvTransaction };
 

@@ -1,19 +1,4 @@
-import axios from "axios";
-import pg from "pg";
-
-const db = new pg.Client({
-    user: "postgres",
-    host: "localhost",
-    database:'transaction',
-    password: 'Arya@9461',
-    port:5432
-  })
-db.connect();
-
-
-import dbError from "./db_errors.js";
-
-
+import db from "../index.js"
 
 
 async function getAllTransactions() {
@@ -55,7 +40,7 @@ async function getTransactionById(id) {
 async function addTransaction(transaction) {
 
     try {
-        const result = await db.query("Insert into transaction (date,description,amount,currency,inr_amount) values($1,$2,$3,$4,$5) returning *", [transaction.Date, transaction.Description, transaction.Amount, transaction.Currency,transaction.inrAmount]);
+        const result = await db.query("Insert into transaction (date,description,amount,currency,inramount) values($1,$2,$3,$4,$5) returning *", [transaction.Date, transaction.Description, transaction.Amount, transaction.Currency,transaction.inrAmount]);
         return result.rows[0];
     }
     catch (error) {
@@ -70,7 +55,7 @@ async function addTransaction(transaction) {
 async function updateTransaction(transaction,id) {
     
     try {
-        const result = await db.query("Update transaction set date=$1,description=$2,amount=$3,currency=$4,inr_amount=$5 where id=$6 and ispresent=$7 returning *",[transaction.Date,transaction.Description,transaction.Amount,transaction.Currency,transaction.inrAmount,id,1]);
+        const result = await db.query("Update transaction set date=$1,description=$2,amount=$3,currency=$4,inramount=$5 where id=$6 and ispresent=$7 returning *",[transaction.Date,transaction.Description,transaction.Amount,transaction.Currency,transaction.inrAmount,id,1]);
         
         if (result.rowCount) {
             return result.rows[0];
@@ -94,11 +79,11 @@ async function updateTransaction(transaction,id) {
 async function addBatchTransaction(transaction) {
     
    
-    const queryText = `INSERT INTO transaction (date, description, amount, currency, inr_amount)
+    const queryText = `INSERT INTO transaction (date, description, amount, currency, inramount)
     VALUES ${transaction.map((_, index) => `($${index * 5 + 1}, $${index * 5 + 2}, $${index * 5 + 3}, $${index * 5 + 4}, $${index * 5 + 5})`).join(',')}
     RETURNING *`;
 
-    const values = transaction.flatMap(item => [item.Date, item.Description, item.Amount, item.Currency, item.inr_amount]);
+    const values = transaction.flatMap(item => [item.Date, item.Description, item.Amount, item.Currency, item.inramount]);
     try {
         const result = await db.query(queryText, values);
         return result.rows;
@@ -134,5 +119,26 @@ async function deleteTransaction(id) {
 
 }
 
+async function batchDelete(ids) {
+    try {
+        // Create a comma-separated string of IDs
+        const idsString = ids.join(',');
 
-export default { getAllTransactions, getTransactionById, addTransaction, updateTransaction, deleteTransaction,addBatchTransaction };
+        // Perform the batch update query
+        const result = await db.query(`UPDATE transaction SET ispresent = 0 WHERE id IN (${idsString})`);
+
+        // Check if any rows were affected
+        if (result.rowCount > 0) {
+            return { status: "Deleted Successfully" };
+        } else {
+            throw { status: 400, message: dbError.ids(ids) };
+        }
+    } catch (error) {
+        console.log(dbError.delete, error);
+        throw (error.status ? error : { status: 500, message: dbError.delete });
+    }
+}
+
+
+
+export default {batchDelete, getAllTransactions, getTransactionById, addTransaction, updateTransaction, deleteTransaction,addBatchTransaction };
