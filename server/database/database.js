@@ -1,5 +1,5 @@
 import db from "../index.js"
-
+import dbError from "./db_errors.js";
 
 async function getAllTransactions() {
     

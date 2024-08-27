@@ -155,6 +155,7 @@ async function batchDelete(arr) {
 
 
 
+
 async function deleteTransaction(id) {
    
     try {
